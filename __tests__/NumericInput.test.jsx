@@ -51,6 +51,111 @@ describe('NumericInput', function() {
         expect(inputNode.value).toEqual('4.90');
     });
 
+    it('step up change with truncateRange updates to the next possible step', () => {
+        var widget = TestUtils.renderIntoDocument(
+                <NumericInput
+                    value={1000}
+                    step={1000}
+                    truncateRange={true}
+                />
+            ),
+            inputNode  = widget.refs.input;
+
+        // Test the step
+        TestUtils.Simulate.keyDown(inputNode, { keyCode: KEYCODE_UP });
+        expect(inputNode.value).toEqual('2000');
+    });
+
+    it('step up change with truncateRange updates to the before possible step', () => {
+        var widget = TestUtils.renderIntoDocument(
+                <NumericInput
+                    value={1000}
+                    step={1000}
+                    truncateRange={true}
+                />
+            ),
+            inputNode  = widget.refs.input;
+
+        // Test the step
+        TestUtils.Simulate.keyDown(inputNode, { keyCode: KEYCODE_DOWN });
+        expect(inputNode.value).toEqual('0');
+    });
+
+    it('step up change with truncateRange does not get bigger than next possible step', () => {
+        var widget = TestUtils.renderIntoDocument(
+                <NumericInput
+                    value={1250}
+                    step={1000}
+                    truncateRange={true}
+                />
+            ),
+            inputNode  = widget.refs.input;
+
+        // Test the step
+        TestUtils.Simulate.keyDown(inputNode, { keyCode: KEYCODE_UP });
+        expect(inputNode.value).toEqual('2000');
+    });
+
+    it('step up change with truncateRange does not get smaller than next possible step', () => {
+        var widget = TestUtils.renderIntoDocument(
+                <NumericInput
+                    value={150}
+                    step={1000}
+                    truncateRange={true}
+                />
+            ),
+            inputNode  = widget.refs.input;
+
+        // Test the step
+        TestUtils.Simulate.keyDown(inputNode, { keyCode: KEYCODE_DOWN });
+        expect(inputNode.value).toEqual('0');
+    });
+
+    it('step up change with truncateRange with a zero applies the next step with success', () => {
+        var widget = TestUtils.renderIntoDocument(
+                <NumericInput
+                    value={0}
+                    step={1000}
+                    truncateRange={true}
+                />
+            ),
+            inputNode  = widget.refs.input;
+
+        // Test the step
+        TestUtils.Simulate.keyDown(inputNode, { keyCode: KEYCODE_DOWN });
+        expect(inputNode.value).toEqual('-1000');
+    });
+
+    it('step down change with a negative current number applies the next step with success', () => {
+        var widget = TestUtils.renderIntoDocument(
+                <NumericInput
+                    value={-150}
+                    step={1000}
+                    truncateRange={true}
+                />
+            ),
+            inputNode  = widget.refs.input;
+
+        // Test the step
+        TestUtils.Simulate.keyDown(inputNode, { keyCode: KEYCODE_DOWN });
+        expect(inputNode.value).toEqual('-1000');
+    });
+
+    it('step down change with a negative current number to up does as zero applies the next step with success', () => {
+        var widget = TestUtils.renderIntoDocument(
+                <NumericInput
+                    value={-150}
+                    step={1000}
+                    truncateRange={true}
+                />
+            ),
+            inputNode  = widget.refs.input;
+
+        // Test the step
+        TestUtils.Simulate.keyDown(inputNode, { keyCode: KEYCODE_UP });
+        expect(inputNode.value).toEqual('0');
+    });
+
     it('accepts value of 0', () => {
         var widget = TestUtils.renderIntoDocument(<NumericInput value={0}/>),
             inputNode = widget.refs.input;

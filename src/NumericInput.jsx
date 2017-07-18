@@ -62,6 +62,7 @@ class NumericInput extends Component
         disabled     : PropTypes.bool,
         readOnly     : PropTypes.bool,
         required     : PropTypes.bool,
+        truncateRange: PropTypes.bool,
         noValidate   : PropTypes.oneOfType([PropTypes.bool, PropTypes.string]),
         style        : PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
         type         : PropTypes.string,
@@ -93,14 +94,15 @@ class NumericInput extends Component
      * integers
      */
     static defaultProps = {
-        step      : 1,
-        min       : Number.MIN_SAFE_INTEGER || -9007199254740991,
-        max       : Number.MAX_SAFE_INTEGER ||  9007199254740991,
-        precision : 0,
-        parse     : null,
-        format    : null,
-        mobile    : 'auto',
-        style     : {}
+        step         : 1,
+        min          : Number.MIN_SAFE_INTEGER || -9007199254740991,
+        max          : Number.MAX_SAFE_INTEGER ||  9007199254740991,
+        precision    : 0,
+        parse        : null,
+        format       : null,
+        mobile       : 'auto',
+        style        : {},
+        truncateRange: false
     };
 
     /**
@@ -572,10 +574,23 @@ class NumericInput extends Component
      */
     _step(n: number, callback?: Function): boolean
     {
+        const step = this.props.step;
+        const baseValue = this.state.value;
         let _n = this._toNumber(
-            (this.state.value || 0) + this.props.step * n,
+            (baseValue || 0) + step * n,
             false
         );
+
+        if(this.props.truncateRange && baseValue != 0 && Math.abs(_n % step) != 0 ) {
+          let baseSize;
+          if(n > 0) {
+             baseSize = Math.ceil(baseValue / step)
+          } else {
+            baseSize = Math.floor(baseValue / step)
+          }
+
+          _n = baseSize * step;
+        }
 
         if (_n !== this.state.value) {
             this.setState({ value: _n }, callback);
@@ -724,6 +739,7 @@ class NumericInput extends Component
             // These are ignored in rendering
             step, min, max, precision, parse, format, mobile,
             value, type, style, defaultValue, onInvalid, onValid,
+            truncateRange,
 
             // The rest are passed to the input
             ...rest
